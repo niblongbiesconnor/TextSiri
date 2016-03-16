@@ -1,0 +1,6 @@
+env/
+pip*
+modules/
+./config.cfg
+*/*.pyc
+**/__pycache__/

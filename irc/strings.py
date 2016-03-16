@@ -9,11 +9,14 @@ class IRCFoldedCase(FoldedCase):
     A version of FoldedCase that honors the IRC specification for lowercased
     strings (RFC 1459).
 
-    >>> print(IRCFoldedCase('Foo^').lower())
-    foo~
+    >>> IRCFoldedCase('Foo^').lower()
+    'foo~'
 
     >>> IRCFoldedCase('[this]') == IRCFoldedCase('{THIS}')
     True
+
+    >>> IRCFoldedCase().lower()
+    ''
     """
     translation = dict(zip(
         map(ord, string.ascii_uppercase + r"[]\^"),
@@ -21,7 +24,11 @@ class IRCFoldedCase(FoldedCase):
     ))
 
     def lower(self):
-        return self.translate(self.translation)
+        return (
+            self.translate(self.translation) if self
+            # bypass translate, which returns self
+            else super(IRCFoldedCase, self).lower()
+        )
 
 def lower(str):
     return IRCFoldedCase(str).lower()

@@ -10,6 +10,8 @@ write simpler bots.
 from __future__ import absolute_import
 
 import sys
+import collections
+import itertools
 
 import irc.client
 import irc.modes
@@ -135,19 +137,16 @@ class SingleServerIRCBot(irc.client.SimpleIRCClient):
             self.channels[channel].remove_user(nick)
 
     def _on_mode(self, c, e):
-        modes = irc.modes.parse_channel_modes(" ".join(e.arguments))
         t = e.target
-        if irc.client.is_channel(t):
-            ch = self.channels[t]
-            for mode in modes:
-                if mode[0] == "+":
-                    f = ch.set_mode
-                else:
-                    f = ch.clear_mode
-                f(mode[1], mode[2])
-        else:
-            # Mode on self... XXX
-            pass
+        if not irc.client.is_channel(t):
+            # mode on self; disregard
+            return
+        ch = self.channels[t]
+
+        modes = irc.modes.parse_channel_modes(" ".join(e.arguments))
+        for sign, mode, argument in modes:
+            f = {"+": ch.set_mode, "-": ch.clear_mode}[sign]
+            f(mode, argument)
 
     def _on_namreply(self, c, e):
         """
@@ -270,73 +269,88 @@ class Channel(object):
     A class for keeping information about an IRC channel.
     """
 
+    user_modes = 'ovqha'
+    """
+    Modes which are applicable to individual users, and which
+    should be tracked in the mode_users dictionary.
+    """
+
     def __init__(self):
-        self.userdict = IRCDict()
-        self.operdict = IRCDict()
-        self.voiceddict = IRCDict()
-        self.ownerdict = IRCDict()
-        self.halfopdict = IRCDict()
+        self._users = IRCDict()
+        self.mode_users = collections.defaultdict(IRCDict)
         self.modes = {}
 
     def users(self):
         """Returns an unsorted list of the channel's users."""
-        return self.userdict.keys()
+        return self._users.keys()
 
     def opers(self):
         """Returns an unsorted list of the channel's operators."""
-        return self.operdict.keys()
+        return self.mode_users['o'].keys()
 
     def voiced(self):
         """Returns an unsorted list of the persons that have voice
         mode set in the channel."""
-        return self.voiceddict.keys()
+        return self.mode_users['v'].keys()
 
     def owners(self):
         """Returns an unsorted list of the channel's owners."""
-        return self.ownerdict.keys()
+        return self.mode_users['q'].keys()
 
     def halfops(self):
         """Returns an unsorted list of the channel's half-operators."""
-        return self.halfopdict.keys()
+        return self.mode_users['h'].keys()
+
+    def admins(self):
+        """Returns an unsorted list of the channel's admins."""
+        return self.mode_users['a'].keys()
 
     def has_user(self, nick):
         """Check whether the channel has a user."""
-        return nick in self.userdict
+        return nick in self._users
 
     def is_oper(self, nick):
         """Check whether a user has operator status in the channel."""
-        return nick in self.operdict
+        return nick in self.mode_users['o']
 
     def is_voiced(self, nick):
         """Check whether a user has voice mode set in the channel."""
-        return nick in self.voiceddict
+        return nick in self.mode_users['v']
 
     def is_owner(self, nick):
         """Check whether a user has owner status in the channel."""
-        return nick in self.ownerdict
+        return nick in self.mode_users['q']
 
     def is_halfop(self, nick):
         """Check whether a user has half-operator status in the channel."""
-        return nick in self.halfopdict
+        return nick in self.mode_users['h']
+
+    def is_admin(self, nick):
+        """Check whether a user has admin status in the channel."""
+        return nick in self.mode_users['a']
 
     def add_user(self, nick):
-        self.userdict[nick] = 1
+        self._users[nick] = 1
+
+    @property
+    def user_dicts(self):
+        yield self._users
+        for d in self.mode_users.values():
+            yield d
 
     def remove_user(self, nick):
-        for d in self.userdict, self.operdict, self.voiceddict:
-            if nick in d:
-                del d[nick]
+        for d in self.user_dicts:
+            d.pop(nick, None)
 
     def change_nick(self, before, after):
-        self.userdict[after] = self.userdict.pop(before)
-        if before in self.operdict:
-            self.operdict[after] = self.operdict.pop(before)
-        if before in self.voiceddict:
-            self.voiceddict[after] = self.voiceddict.pop(before)
+        self._users[after] = self._users.pop(before)
+        for mode_lookup in self.mode_users.values():
+            if before in mode_lookup:
+                mode_lookup[after] = mode_lookup.pop(before)
 
     def set_userdetails(self, nick, details):
-        if nick in self.userdict:
-            self.userdict[nick] = details
+        if nick in self._users:
+            self._users[nick] = details
 
     def set_mode(self, mode, value=None):
         """Set mode on the channel.
@@ -347,14 +361,8 @@ class Channel(object):
 
             value -- Value
         """
-        if mode == "o":
-            self.operdict[value] = 1
-        elif mode == "v":
-            self.voiceddict[value] = 1
-        elif mode == "q":
-            self.ownerdict[value] = 1
-        elif mode == "h":
-            self.halfopdict[value] = 1
+        if mode in self.user_modes:
+            self.mode_users[mode][value] = 1
         else:
             self.modes[mode] = value
 
@@ -368,14 +376,8 @@ class Channel(object):
             value -- Value
         """
         try:
-            if mode == "o":
-                del self.operdict[value]
-            elif mode == "v":
-                del self.voiceddict[value]
-            elif mode == "q":
-                del self.ownerdict[value]
-            elif mode == "h":
-                del self.halfopdict[value]
+            if mode in self.user_modes:
+                del self.mode_users[mode][value]
             else:
                 del self.modes[mode]
         except KeyError:
