@@ -72,6 +72,6 @@ def load_all_modules(dirname, info, config):
     for module in info["about"].keys():
         for dependency in info["about"][module]["dependencies"]:
             if dependency not in info["about"]:
-                print_fatal("Module {} was not found, which is a dependecy for {}! Please download and include the required module, or remove the module that requires it. Quitting.")
+                print_fatal("Module {} was not found, which is a dependency for {}! Please download and include the required module, or remove the module that requires it. Quitting.".format(dependency, module))
                 sys.exit(2)
     print_info("All dependencies are included.")
