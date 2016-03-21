@@ -17,7 +17,7 @@ When you first run TextSiri it will create a new file for you called **config.cf
 Modules
 ---
 
-All of the modules that I have created can be found ~~[here](http://github.com/mission712/textsiri-modules)~~ TODO. Simply throw them in the **modules** directory. They will automatically create their configuration files, and you may change them while the bot's running (Feature of the *Reload* module).
+All of the modules that I have created can be found [here](http://github.com/mission712/textsiri-modules). Simply throw them in the **modules** directory. They will automatically create their configuration files, and you may change them while the bot's running (Feature of the *Reload* module).
 
 License
 ---
