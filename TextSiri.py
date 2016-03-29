@@ -200,7 +200,11 @@ class TextSiri(irc.bot.SingleServerIRCBot):
             time.sleep(0.01)
             if len(self.info["message_buffer"]):
                 lst = self.info["message_buffer"].pop(0)
-                c.privmsg(lst[0],lst[1])
+                if len("PRIVMSG {} :{}".format(lst[0],lst[1])) > 302:
+                    lst[1] = lst[1][:302 - (len("PRIVMSG {} :".format(lst[0])) + len("... (truncated)")-2)] + "\x02... (truncated)\x02"
+                    c.privmsg(lst[0],lst[1])
+                else:
+                    c.privmsg(lst[0],lst[1])
                 self.message_counter += 1
             if self.message_counter > 9:
                 if self.message_slowmode_lock == 0:
