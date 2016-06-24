@@ -22,7 +22,4 @@ All of the modules that I have created can be found [here](http://github.com/mis
 License
 ---
 
-All of my work is under the **Creative Commons ShareAlike Non-Commercial 4.0** license. You are free to use this software as long as you do not modify it and keep this notice.
-
-
-&copy; mission712 2016.
+This work is now licensed under the **MIT License**. You may obtain, modify and share this software as long as you give me credits for substantial portions of code.
