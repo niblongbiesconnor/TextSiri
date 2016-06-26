@@ -1,7 +1,6 @@
 env/
-irc/
 pip*
 modules/
-./config.cfg
+config.cfg
 */*.pyc
 **/__pycache__/

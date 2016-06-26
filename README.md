@@ -1,6 +1,8 @@
 TextSiri
 ---
 
+## TextSiri has been completely rewritten and none of the modules are compatible. I am going to rewrite them to be compatible soon.
+
 TextSiri is an IRC bot with outstanding modularity. All of its power comes from **modules**, a new way to add commands to your bot! Simply throw all of your modules to the **modules** folder, and you are set!
 
 Requirements
@@ -8,6 +10,7 @@ Requirements
 
  - Python 3
  - irclib 13
+ - Requests
 
 Configuration
 ---
