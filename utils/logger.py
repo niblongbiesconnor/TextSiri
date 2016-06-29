@@ -35,7 +35,7 @@ ansi_colors = {
 }
 
 def print_custom(text, source):
-    print("[{}] [{}] {}{color_clear}".format(datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S"), source, text, **ansi_colors).format(**ansi_colors))
+    print("[{}] [{}] {}{color_clear}".format(datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S"), source.format(**ansi_colors), text.format(**ansi_colors), **ansi_colors))
 
 def print_info(text):
     print_custom(text, " {color_green}{color_bold}INFO{color_clear} ")
