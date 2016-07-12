@@ -106,7 +106,7 @@ class TextSiri(irc.bot.SingleServerIRCBot):
                     getattr(c, command_name)(command.pop(0), *command)
                     sent_message = True
                 except Exception as e:
-                    logger.print_error(e)
+                    logger.print_error(str(e))
             if sent_message:
                 self.message_counter += 1
             else:
@@ -150,3 +150,5 @@ if __name__ == "__main__":
         except KeyboardInterrupt:
             Instance.die("Ctrl+C from terminal.")
             sys.exit(0)
+        except Exception as e:
+            logger.print_error(type(e).__name__+str(e))

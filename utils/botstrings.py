@@ -11,6 +11,6 @@
 
 # utils/botstrings.py = Contains string constants for the bot.
 
-VERSION = "1.0.0.1" # Follows semantic versioning.
+VERSION = "1.0.0.2" # Follows semantic versioning.
 CONFIG_FILE = "config.cfg"
 MODULES_DIR = "modules"

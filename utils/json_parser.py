@@ -12,16 +12,19 @@
 # utils/json_parser.py = JSON parser for config.
 
 import json
+import os
 
 class JSONParser(object):
     def __init__(self, filename):
         super(JSONParser, self).__init__()
+        if not os.path.isfile(filename):
+            self.is_empty = True
+        else:
+            self.is_empty = False
         try:
             self.file = open(filename, "a+")
-            self.is_empty = False
         except IOError:
             self.file = open(filename, "w+")
-            self.is_empty = True
         self.file.seek(0)
         if not self.is_empty:
             self.dict = json.load(self.file)
