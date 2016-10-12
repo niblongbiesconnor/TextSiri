@@ -12,6 +12,7 @@ Requirements
  - irclib 13
  - Requests
 
+These packages can be installed by running *pip -r install requirements.txt*
 Configuration
 ---
 
